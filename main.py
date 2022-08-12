@@ -6,9 +6,9 @@ dt = datamine()
 
 @app.get("/")
 async def root():
-    return {"msg":"use o nome da /cotacao/nome_cotação"}
+    return {"msg":"use o nome da /fundos11/nome_cotação"}
 
 
-@app.get("/cotacao/{name}")
-async def cotacao(name: str):
+@app.get("/fundos11/{name}")
+async def fundos11(name: str):
     return dt.inicio(name)
