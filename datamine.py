@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup as bs
 import re
 
-
 class datamine():
     def __init__(self):
         self.nome_cotacao = ''
@@ -12,6 +11,7 @@ class datamine():
 
     def limpeza(self, texto):
         texto = texto.replace('R$', '')
+        texto = texto.replace('.', '')
         texto = texto.replace(',', '.')
         texto = texto.strip()
         return texto
@@ -51,4 +51,4 @@ class datamine():
 
 if __name__ == "__main__":
     dt = datamine()
-    dt.inicio("mxrf11")
+    dt.inicio("visc11")

@@ -4,6 +4,7 @@ from datamine import *
 app = FastAPI()
 dt = datamine()
 
+
 @app.get("/")
 async def root():
     return {"msg":"use o nome da /fundos11/nome_cotação"}
