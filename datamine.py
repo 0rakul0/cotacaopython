@@ -14,6 +14,7 @@ class datamine():
         texto = texto.replace('.', '')
         texto = texto.replace(',', '.')
         texto = texto.strip()
+        texto = float(texto)
         return texto
 
     def inicio(self, nome):
@@ -47,12 +48,12 @@ class datamine():
         descricao_rentabilidade = soup.find('span', text=re.compile('Valor Patrimonial'))
         valor_patrimonio = descricao_rentabilidade.find_next_sibling('span', {'class':'indicator-value'}).text
         valor_patrimonio = self.limpeza_real(valor_patrimonio)
-        self.valor_cota = float(valor_patrimonio)
+        self.valor_cota = valor_patrimonio
 
         descricao_rendimento = soup.find('span', text=re.compile('Último Rendimento'))
         rendimento = descricao_rendimento.find_next_sibling('span', {'class': 'indicator-value'}).text
         rendimento = self.limpeza_real(rendimento)
-        self.valor_rendimento = float(rendimento)
+        self.valor_rendimento = rendimento
 
         #grafico das cotações
         cotacoes_historico = soup.find('section', {'id':'quotations'})
