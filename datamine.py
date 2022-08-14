@@ -39,7 +39,7 @@ class datamine():
         valor_porcentagem = valor_porcentagem.strip()
         valor_porcentagem = float(valor_porcentagem)
         situacao = 1-valor_porcentagem
-        if situacao > 0:
+        if situacao < 0:
             situacao_porcentagem = f'acima de 1% - vale investir - {valor_porcentagem}%'
         else:
             situacao_porcentagem = f'abaixo de 1% - segurar ou vender - {valor_porcentagem}%'
