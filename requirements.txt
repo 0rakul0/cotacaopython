@@ -17,3 +17,4 @@ yfinance==0.1.74
 BeautifulSoup4==4.11.1
 uvicorn==0.18.2
 fastapi==0.79.0
+joblib==1.1.0

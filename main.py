@@ -8,8 +8,7 @@ dt = datamine()
 @app.get("/")
 async def root():
     return {
-        "msg":["use o nome da /fundos11/nome_cotação",
-                "use o /fundos/{valor} para obter a lista de valor minimo de investimento"]
+        "msg":["use o nome da /fundos11/nome_cotação"]
             }
 
 @app.get("/fundos/{valor}")
