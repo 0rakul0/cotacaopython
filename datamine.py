@@ -142,7 +142,7 @@ class datamine():
                         'INFO': info, 'QUANDO_PAGA':data, 'HISTORICO': historico}
         return dict_recurso
 
-    def abaixo_de(self, valor=None):
+    def abaixo_de(self, min=None, max=None):
         url = "https://www.fundsexplorer.com.br/funds"
         headers = {
             'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/ 97.0.4692.99 Safari/537.36"}
@@ -150,7 +150,7 @@ class datamine():
         soup_fundo1 = bs(site1.content, 'html.parser')
 
         resultado = []
-        result = self.fund_cotas(soup_fundo1, valor=valor)
+        result = self.fund_cotas(soup_fundo1, valor_min=min, valor_max=max)
         for x in result:
             if x != None:
                 resultado.append(x)
@@ -158,19 +158,19 @@ class datamine():
         result = resultado
         return result
 
-    def executor(self, acao, valor):
+    def executor(self, acao, valor_min=None, valor_max=None):
         result = self.inicio(acao)
         if result != None:
             valor_acao = result['VALOR_COTA']
             if valor_acao != 'N/A':
-                if valor_acao < valor.real:
+                if valor_acao > valor_min.real and valor_acao < valor_max.real:
                     data = result['QUANDO_PAGA']
                     if data != None:
                         cota = acao,result['VALOR_COTA'],result['RENDIMENTO'],result['SEGMENTO'], data
-                        print(f'fundos até R${valor}, {cota}')
+                        print(f'fundos entre R${valor_min} e R${valor_max}, {cota}')
                         return cota
 
-    def fund_cotas(self, soup, valor=None):
+    def fund_cotas(self, soup, valor_min=None, valor_max=None):
         #lista de cotações
         lista_cotas = []
         # nome da cota
@@ -181,9 +181,9 @@ class datamine():
             nome_fundos = nome_fundos.text
             lista_cotas.append(nome_fundos)
 
-        execucao = Parallel(n_jobs=-1)(delayed(self.executor)(acao=acao, valor=valor) for acao in lista_cotas)
+        execucao = Parallel(n_jobs=-1)(delayed(self.executor)(acao=acao, valor_min=valor_min, valor_max=valor_max) for acao in lista_cotas)
         return execucao
 
 if __name__ == "__main__":
     dt = datamine()
-    dt.abaixo_de(10)
+    dt.abaixo_de(min=10, max=40)

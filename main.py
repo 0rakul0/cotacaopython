@@ -11,9 +11,9 @@ async def root():
         "msg":["use o nome da /fundos11/nome_cotação"]
             }
 
-@app.get("/fundos/{valor}")
-async  def fundos(valor: float):
-    return dt.abaixo_de(valor)
+@app.get("/fundos/min={min}&max={max}")
+async  def fundos(min: float, max: float):
+    return dt.abaixo_de(min=min, max=max)
 
 
 @app.get("/fundos11/{name}")
