@@ -169,9 +169,16 @@ class datamine():
         for nome_fundos in fundos:
             nome_fundos = nome_fundos.text
             lista_cotas.append(nome_fundos)
-
-        execucao = Parallel(n_jobs=2)(delayed(self.executor)(acao=acao, valor=valor) for acao in lista_cotas)
-        return execucao
+        
+         for acao in lista_cotas:
+            result = self.inicio(acao)
+            if result != None:
+                valor_acao = result['VALOR_COTA']
+                if valor_acao != 'N/A':
+                    if valor_acao < valor.real:
+                        cota = acao, result['VALOR_COTA'], result['RENDIMENTO'], result['SEGMENTO']
+                        print(f'fundos até {valor}, {cota}')
+                        lista_acoes.append(cota)
 
 
 if __name__ == "__main__":
