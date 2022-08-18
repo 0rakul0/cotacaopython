@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup as bs
-from joblib import Parallel, delayed
+# from joblib import Parallel, delayed
 import re
+
 
 class datamine():
     def __init__(self):
@@ -35,7 +36,6 @@ class datamine():
         site2 = requests.get(url_2, headers=headers)
         soup_fundo2 = bs(site2.content, 'html.parser')
 
-
         result = self.run(soup_fundo1, soup_fundo2)
 
         self.nome_cotacao = nome
@@ -44,24 +44,24 @@ class datamine():
     def run(self, soup, soup_2):
         try:
             # valor da cota
-            valor_cota = soup.find('div', {'id':'stock-price'})
-            valor_cota = valor_cota.find('span', {'class':'price'}).text
+            valor_cota = soup.find('div', {'id': 'stock-price'})
+            valor_cota = valor_cota.find('span', {'class': 'price'}).text
             valor_cota = self.limpeza_real(valor_cota)
 
-            #porcentagem de dividendos
+            # porcentagem de dividendos
             porcentagem = soup.find('span', text=re.compile('Dividend Yield'))
-            valor_porcentagem = porcentagem.find_next_sibling('span', {'class':'indicator-value'}).text
-            valor_porcentagem = valor_porcentagem.replace(',', '.').replace('%','')
+            valor_porcentagem = porcentagem.find_next_sibling('span', {'class': 'indicator-value'}).text
+            valor_porcentagem = valor_porcentagem.replace(',', '.').replace('%', '')
             valor_porcentagem = valor_porcentagem.strip()
             valor_porcentagem = float(valor_porcentagem)
-            situacao = 1-valor_porcentagem
+            situacao = 1 - valor_porcentagem
             if situacao < 0:
                 situacao_porcentagem = f'acima de 1% - vale investir - {valor_porcentagem}%'
             else:
                 situacao_porcentagem = f'abaixo de 1% - segurar ou vender - {valor_porcentagem}%'
 
             descricao_rentabilidade = soup.find('span', text=re.compile('Valor Patrimonial'))
-            valor_patrimonio = descricao_rentabilidade.find_next_sibling('span', {'class':'indicator-value'}).text
+            valor_patrimonio = descricao_rentabilidade.find_next_sibling('span', {'class': 'indicator-value'}).text
             valor_patrimonio = self.limpeza_real(valor_patrimonio)
             self.valor_cota = valor_patrimonio
 
@@ -78,12 +78,12 @@ class datamine():
             P/PV se tiver abaixo de 1 é pq tem desconto, logo significa que a empresa vale em bolsa menos do que o seu patrimônio líquido. Isso pode ser uma boa oportunidade para o investidor.
             """
             valor_mercado_pv = soup_2.find('span', text=re.compile('Valor de mercado'))
-            valor_mercado_pv = valor_mercado_pv.find_next_sibling('span', {'class':'sub-value'}).text
+            valor_mercado_pv = valor_mercado_pv.find_next_sibling('span', {'class': 'sub-value'}).text
             valor_mercado_pv = self.limpeza_real(valor_mercado_pv)
             valor_patrimonio_pv = soup_2.find('span', text=re.compile('Patrimônio'))
-            valor_patrimonio_pv = valor_patrimonio_pv.find_next_sibling('span', {'class':'sub-value'}).text
+            valor_patrimonio_pv = valor_patrimonio_pv.find_next_sibling('span', {'class': 'sub-value'}).text
             valor_patrimonio_pv = self.limpeza_real(valor_patrimonio_pv)
-            preco_por_acao = (valor_mercado_pv/valor_patrimonio_pv).real
+            preco_por_acao = (valor_mercado_pv / valor_patrimonio_pv).real
         except:
             preco_por_acao = None
 
@@ -101,7 +101,7 @@ class datamine():
         info de dividendos
         """
         p_list = []
-        info = soup.find('div', {'class':'text-dynamic-dividends'})
+        info = soup.find('div', {'class': 'text-dynamic-dividends'})
         info = info.find_all('p')
         for p in info:
             texto = p.text
@@ -120,16 +120,18 @@ class datamine():
         except:
             segmento = None
 
-        #grafico das cotações
-        cotacoes_historico = soup.find('section', {'id':'quotations'})
+        # grafico das cotações
+        cotacoes_historico = soup.find('section', {'id': 'quotations'})
         historico = cotacoes_historico.get('data-chart')
-        historico = historico.replace("\\",'')
+        historico = historico.replace("\\", '')
         historico = eval(historico)
         self.historico = historico
         historico = historico[-15:]
 
-
-        dict_recurso = {'VALOR_COTA':valor_cota, 'VALOR_PATRIMONIO':valor_patrimonio,'SEGMENTO':segmento , 'PORCENTAGEM_DIVIDENDOS':valor_porcentagem, 'PORCETAGEM_RENDIMENTO':situacao_porcentagem, 'RENDIMENTO':rendimento,'P/PV':preco_por_acao, 'RENTABILIDADE_MÊS':rentabilidade, 'INFO':info ,'HISTORICO':historico}
+        dict_recurso = {'VALOR_COTA': valor_cota, 'VALOR_PATRIMONIO': valor_patrimonio, 'SEGMENTO': segmento,
+                        'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
+                        'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
+                        'INFO': info, 'HISTORICO': historico}
         return dict_recurso
 
     def abaixo_de(self, valor=None):
@@ -147,30 +149,6 @@ class datamine():
         # print(resultado)
         # result = resultado
         return result
-
-    # def executor(self, acao, valor):
-    #     result = self.inicio(acao)
-    #     if result != None:
-    #         valor_acao = result['VALOR_COTA']
-    #         if valor_acao != 'N/A':
-    #             if valor_acao < valor.real:
-    #                 cota = acao,result['VALOR_COTA'],result['RENDIMENTO'],result['SEGMENTO']
-    #                 print(f'fundos até {valor}, {cota}')
-    #                 return cota
-
-    # def fund_cotas(self, soup, valor=None):
-    #     #lista de cotações
-    #     lista_cotas = []
-    #     # nome da cota
-    #     fundos = soup.find('section', {'id':'fiis-list'})
-    #     fundos = fundos.find('div', {'class':'row'})
-    #     fundos = fundos.find_all('span', {'class', 'symbol'})
-    #     for nome_fundos in fundos:
-    #         nome_fundos = nome_fundos.text
-    #         lista_cotas.append(nome_fundos)
-    #
-    #     execucao = Parallel(n_jobs=-1)(delayed(self.executor)(acao=acao, valor=valor) for acao in lista_cotas)
-    #     return execucao
 
     def fund_cotas(self, soup, valor=None):
         # lista de cotações
@@ -196,6 +174,29 @@ class datamine():
                         lista_acoes.append(cota)
         return lista_acoes
 
+    # def executor(self, acao, valor):
+    #     result = self.inicio(acao)
+    #     if result != None:
+    #         valor_acao = result['VALOR_COTA']
+    #         if valor_acao != 'N/A':
+    #             if valor_acao < valor.real:
+    #                 cota = acao,result['VALOR_COTA'],result['RENDIMENTO'],result['SEGMENTO']
+    #                 print(f'fundos até {valor}, {cota}')
+    #                 return cota
+
+    # def fund_cotas(self, soup, valor=None):
+    #     #lista de cotações
+    #     lista_cotas = []
+    #     # nome da cota
+    #     fundos = soup.find('section', {'id':'fiis-list'})
+    #     fundos = fundos.find('div', {'class':'row'})
+    #     fundos = fundos.find_all('span', {'class', 'symbol'})
+    #     for nome_fundos in fundos:
+    #         nome_fundos = nome_fundos.text
+    #         lista_cotas.append(nome_fundos)
+    #
+    #     execucao = Parallel(n_jobs=-1)(delayed(self.executor)(acao=acao, valor=valor) for acao in lista_cotas)
+    #     return execucao
 
 if __name__ == "__main__":
     dt = datamine()
