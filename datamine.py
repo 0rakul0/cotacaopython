@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup as bs
-from joblib import Parallel, delayed
 import re
 
 class datamine():
