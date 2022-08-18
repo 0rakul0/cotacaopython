@@ -141,37 +141,60 @@ class datamine():
 
         resultado = []
         result = self.fund_cotas(soup_fundo1, valor=valor)
-        for x in result:
-            if x != None:
-                resultado.append(x)
-        print(resultado)
-        result = resultado
+        # for x in result:
+        #     if x != None:
+        #         resultado.append(x)
+        # print(resultado)
+        # result = resultado
         return result
 
-    def executor(self, acao, valor):
-        result = self.inicio(acao)
-        if result != None:
-            valor_acao = result['VALOR_COTA']
-            if valor_acao != 'N/A':
-                if valor_acao < valor.real:
-                    cota = acao,result['VALOR_COTA'],result['RENDIMENTO'],result['SEGMENTO']
-                    print(f'fundos até {valor}, {cota}')
-                    return cota
+    # def executor(self, acao, valor):
+    #     result = self.inicio(acao)
+    #     if result != None:
+    #         valor_acao = result['VALOR_COTA']
+    #         if valor_acao != 'N/A':
+    #             if valor_acao < valor.real:
+    #                 cota = acao,result['VALOR_COTA'],result['RENDIMENTO'],result['SEGMENTO']
+    #                 print(f'fundos até {valor}, {cota}')
+    #                 return cota
+
+    # def fund_cotas(self, soup, valor=None):
+    #     #lista de cotações
+    #     lista_cotas = []
+    #     # nome da cota
+    #     fundos = soup.find('section', {'id':'fiis-list'})
+    #     fundos = fundos.find('div', {'class':'row'})
+    #     fundos = fundos.find_all('span', {'class', 'symbol'})
+    #     for nome_fundos in fundos:
+    #         nome_fundos = nome_fundos.text
+    #         lista_cotas.append(nome_fundos)
+    #
+    #     execucao = Parallel(n_jobs=-1)(delayed(self.executor)(acao=acao, valor=valor) for acao in lista_cotas)
+    #     return execucao
 
     def fund_cotas(self, soup, valor=None):
-        #lista de cotações
+        # lista de cotações
         lista_cotas = []
+        lista_acoes = []
 
         # nome da cota
-        fundos = soup.find('section', {'id':'fiis-list'})
-        fundos = fundos.find('div', {'class':'row'})
+        fundos = soup.find('section', {'id': 'fiis-list'})
+        fundos = fundos.find('div', {'class': 'row'})
         fundos = fundos.find_all('span', {'class', 'symbol'})
         for nome_fundos in fundos:
             nome_fundos = nome_fundos.text
             lista_cotas.append(nome_fundos)
 
-        execucao = Parallel(n_jobs=-1)(delayed(self.executor)(acao=acao, valor=valor) for acao in lista_cotas)
-        return execucao
+        for acao in lista_cotas:
+            result = self.inicio(acao)
+            if result != None:
+                valor_acao = result['VALOR_COTA']
+                if valor_acao != 'N/A':
+                    if valor_acao < valor.real:
+                        cota = acao, result['VALOR_COTA'], result['RENDIMENTO'], result['SEGMENTO']
+                        print(f'fundos até {valor}, {cota}')
+                        lista_acoes.append(cota)
+        return lista_acoes
 
 
 if __name__ == "__main__":
