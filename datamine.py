@@ -1,3 +1,4 @@
+from datetime import datetime, date
 import requests
 from bs4 import BeautifulSoup as bs
 from joblib import Parallel, delayed
@@ -110,6 +111,13 @@ class datamine():
             p_list.append(texto)
         info = p_list
 
+        try:
+            data = info[0][-7:]
+            data = data.replace(').', '')
+            data = data.split('/')
+            data = f'data pagemento - {data[0]}/{data[1]}/2022'
+        except:
+            data = None
         """
         segmento
         """
@@ -131,7 +139,7 @@ class datamine():
         dict_recurso = {'VALOR_COTA': valor_cota, 'VALOR_PATRIMONIO': valor_patrimonio, 'SEGMENTO': segmento,
                         'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
                         'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
-                        'INFO': info, 'HISTORICO': historico}
+                        'INFO': info, 'QUANDO_PAGA':data, 'HISTORICO': historico}
         return dict_recurso
 
     def abaixo_de(self, valor=None):
@@ -156,9 +164,11 @@ class datamine():
             valor_acao = result['VALOR_COTA']
             if valor_acao != 'N/A':
                 if valor_acao < valor.real:
-                    cota = acao,result['VALOR_COTA'],result['RENDIMENTO'],result['SEGMENTO']
-                    print(f'fundos até {valor}, {cota}')
-                    return cota
+                    data = result['QUANDO_PAGA']
+                    if data != None:
+                        cota = acao,result['VALOR_COTA'],result['RENDIMENTO'],result['SEGMENTO'], data
+                        print(f'fundos até R${valor}, {cota}')
+                        return cota
 
     def fund_cotas(self, soup, valor=None):
         #lista de cotações
@@ -176,4 +186,4 @@ class datamine():
 
 if __name__ == "__main__":
     dt = datamine()
-    dt.abaixo_de(50.0)
+    dt.abaixo_de(10)
