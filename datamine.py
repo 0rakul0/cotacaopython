@@ -170,7 +170,7 @@ class datamine():
             nome_fundos = nome_fundos.text
             lista_cotas.append(nome_fundos)
 
-        execucao = Parallel(n_jobs=-1)(delayed(self.executor)(acao=acao, valor=valor) for acao in lista_cotas)
+        execucao = Parallel(n_jobs=2)(delayed(self.executor)(acao=acao, valor=valor) for acao in lista_cotas)
         return execucao
 
 
