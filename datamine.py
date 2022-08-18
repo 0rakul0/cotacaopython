@@ -150,7 +150,8 @@ class datamine():
     def fund_cotas(self, soup, valor=None):
         #lista de cotações
         lista_cotas = []
-
+        lista_acoes = []
+        
         # nome da cota
         fundos = soup.find('section', {'id':'fiis-list'})
         fundos = fundos.find('div', {'class':'row'})
