@@ -148,16 +148,6 @@ class datamine():
         result = resultado
         return result
 
-    def executor(self, acao, valor):
-        result = self.inicio(acao)
-        if result != None:
-            valor_acao = result['VALOR_COTA']
-            if valor_acao != 'N/A':
-                if valor_acao < valor.real:
-                    cota = acao,result['VALOR_COTA'],result['RENDIMENTO'],result['SEGMENTO']
-                    print(f'fundos até {valor}, {cota}')
-                    return cota
-
     def fund_cotas(self, soup, valor=None):
         #lista de cotações
         lista_cotas = []
