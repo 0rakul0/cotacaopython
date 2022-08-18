@@ -7,7 +7,14 @@ dt = datamine()
 
 @app.get("/")
 async def root():
-    return {"msg":"use o nome da /fundos11/nome_cotação"}
+    return {
+        "msg":["use o nome da /fundos11/nome_cotação",
+                "use o /fundos/{valor} para obter a lista de valor minimo de investimento"]
+            }
+
+@app.get("/fundos/{valor}")
+async  def fundos(valor: float):
+    return dt.abaixo_de(valor)
 
 
 @app.get("/fundos11/{name}")
