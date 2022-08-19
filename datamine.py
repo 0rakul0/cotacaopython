@@ -25,6 +25,7 @@ class datamine():
         return texto
 
     def inicio(self, nome):
+        self.nome_cotacao = nome
         url_2 = f'https://statusinvest.com.br/fundos-imobiliarios/{nome}'
         url_1 = f"https://www.fundsexplorer.com.br/funds/{nome}"
         headers = {
@@ -136,7 +137,7 @@ class datamine():
         self.historico = historico
         historico = historico[-15:]
 
-        dict_recurso = {'VALOR_COTA': valor_cota, 'VALOR_PATRIMONIO': valor_patrimonio, 'SEGMENTO': segmento,
+        dict_recurso = {'NOME_COTA':self.nome_cotacao, 'VALOR_COTA': valor_cota, 'VALOR_PATRIMONIO': valor_patrimonio, 'SEGMENTO': segmento,
                         'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
                         'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
                         'INFO': info, 'QUANDO_PAGA':data, 'HISTORICO': historico}
