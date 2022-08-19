@@ -39,7 +39,6 @@ class datamine():
         soup_fundo2 = bs(site2.content, 'html.parser')
 
         result = self.run(soup_fundo1, soup_fundo2)
-
         self.nome_cotacao = nome
         return result
 
@@ -113,10 +112,10 @@ class datamine():
         info = p_list
 
         try:
-            data = info[0][-7:]
-            data = data.replace(').', '')
+            data = re.search(re.compile('na data .{5}'), info[0])
+            data = data.group(0)
             data = data.split('/')
-            data = f'data pagemento - {data[0]}/{data[1]}/2022'
+            data = f'ultimo pagamento - {data[0][-2:]}/{data[1]}/2022'
         except:
             data = None
         """
@@ -129,18 +128,48 @@ class datamine():
         except:
             segmento = None
 
-        # grafico das cotações
-        cotacoes_historico = soup.find('section', {'id': 'quotations'})
-        historico = cotacoes_historico.get('data-chart')
-        historico = historico.replace("\\", '')
-        historico = eval(historico)
-        self.historico = historico
-        historico = historico[-15:]
+        try:
+            # grafico das cotações do funds
+
+            hist_list = []
+            cotacoes_historico = soup.find('section', {'id': 'quotations'})
+            historico = cotacoes_historico.get('data-chart')
+            historico = historico.replace("\\", '')
+            historico = eval(historico)
+            historico = historico
+
+            #result do status
+            cotacoes_rendimentos = soup_2.find('input',{'id':'results'})
+            cotacoes_rendimentos = cotacoes_rendimentos.get('value')
+            cotacoes_rendimentos = cotacoes_rendimentos.replace("[{",'').replace("}]",'')
+            cotacoes_rendimentos = cotacoes_rendimentos.split("},{")
+            for linha_cotaceos in cotacoes_rendimentos:
+                list_linha_cotaceos = linha_cotaceos.split(',')
+                data_pg = list_linha_cotaceos[5][6:]
+                data_pg = data_pg[:-1]
+                data_pagamento = data_pg.split('/')
+                data_pagamento = f'{data_pagamento[2]}-{data_pagamento[1]}-{data_pagamento[0]}'
+                rendimento_pg = list_linha_cotaceos[8][4:]
+                rendimento_pg = rendimento_pg[:-1]
+                rendimento_pg = float(rendimento_pg)
+                for dado in historico:
+                    if data_pagamento == dado['day']:
+                        hist_item = data_pagamento, dado['value'], rendimento_pg
+                        hist_list.append(hist_item)
+        except:
+            hist_list = None
+
+        # situação pag
+        if hist_list != None:
+            situacao_pg = 'REGULAR'
+        else:
+            situacao_pg = 'INREGULAR'
+
 
         dict_recurso = {'NOME_COTA':self.nome_cotacao, 'VALOR_COTA': valor_cota, 'VALOR_PATRIMONIO': valor_patrimonio, 'SEGMENTO': segmento,
                         'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
                         'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
-                        'INFO': info, 'QUANDO_PAGA':data, 'HISTORICO': historico}
+                        'INFO': info, 'ULTIMO_PG':data,'SITUACAO_PG':situacao_pg, 'HISTORICO':hist_list}
         return dict_recurso
 
     def abaixo_de(self, min=None, max=None):
@@ -187,4 +216,5 @@ class datamine():
 
 if __name__ == "__main__":
     dt = datamine()
-    dt.abaixo_de(min=10, max=40)
+    dt.inicio('mxrf11')
+    # dt.abaixo_de(min=10, max=40)
