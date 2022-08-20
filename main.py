@@ -8,7 +8,8 @@ dt = datamine()
 @app.get("/")
 async def root():
     return {
-        "msg":["use o nome da /fundos11/nome_cotação"]
+        "msg":["use o nome da /fundos11/nome_cotação",
+               "para ver o historico separadamente /hist/{name}"]
             }
 
 @app.get("/fundos/min={min}&max={max}")
@@ -19,3 +20,7 @@ async  def fundos(min: float, max: float):
 @app.get("/fundos11/{name}")
 async def fundos11(name: str):
     return dt.inicio(name)
+
+@app.get("/hist/{name}")
+async def hist(name: str):
+    return dt.hist(name)

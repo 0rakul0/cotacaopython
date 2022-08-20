@@ -130,7 +130,7 @@ class datamine():
 
         try:
             # grafico das cotações do funds
-
+            # hist_dict = {}
             hist_list = []
             cotacoes_historico = soup.find('section', {'id': 'quotations'})
             historico = cotacoes_historico.get('data-chart')
@@ -156,6 +156,7 @@ class datamine():
                     if data_pagamento == dado['day']:
                         hist_item = {'DATA': data_pagamento, 'VALOR_COTA': dado['value'], 'RENDIMENTO': rendimento_pg}
                         hist_list.append(hist_item)
+
         except:
             hist_list = None
 
@@ -171,6 +172,11 @@ class datamine():
                         'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
                         'INFO': info, 'ULTIMO_PG':data,'SITUACAO_PG':situacao_pg, 'HISTORICO':hist_list}
         return dict_recurso
+
+    def hist(self, name):
+        hist = self.inicio(name)
+        hist = hist['HISTORICO']
+        return hist
 
     def abaixo_de(self, min=None, max=None, rendimento=None):
         url = "https://www.fundsexplorer.com.br/funds"
@@ -218,5 +224,6 @@ class datamine():
 
 if __name__ == "__main__":
     dt = datamine()
-    dt.inicio('mxrf11')
+    # dt.inicio('mxrf11')
+    dt.hist('mxrf11')
     # dt.abaixo_de(min=10, max=40, rendimento=0.1)
