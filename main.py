@@ -13,7 +13,7 @@ async def root():
 
 @app.get("/fundos/min={min}&max={max}")
 async  def fundos(min: float, max: float):
-    return dt.abaixo_de(min=min, max=max)
+    return dt.abaixo_de(min=min, max=max, rendimento=0.1)
 
 
 @app.get("/fundos11/{name}")
