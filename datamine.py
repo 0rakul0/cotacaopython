@@ -231,8 +231,7 @@ class datamine():
         return execucao
 
     def carteira_publica(self):
-        carteira_df = pd.read_excel('./bi/minha_carteira.xlsx', header=0)
-
+        carteira_df = pd.read_excel('./bi/minha_carteira.xlsx', header=0, sheet_name='Planilha1')
         carteira_dict = []
         for indice, linha in carteira_df.iterrows():
             acoes = linha['acoes']
