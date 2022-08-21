@@ -49,6 +49,8 @@ class datamine():
             liquidez_d = soup.find('span', text=re.compile('Liquidez Diária'))
             liquidez_d = liquidez_d.find_next_sibling('span', {'class': 'indicator-value'}).text
             liquidez_d = liquidez_d.strip()
+            liquidez_d = liquidez_d.replace('.','')
+            liquidez_d = int(liquidez_d)
 
             # valor da cota
             valor_cota = soup.find('div', {'id': 'stock-price'})
