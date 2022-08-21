@@ -16,7 +16,6 @@ async def root():
 async  def fundos(min: float, max: float):
     return dt.abaixo_de(min=min, max=max, rendimento=0.1)
 
-
 @app.get("/fundos11/{name}")
 async def fundos11(name: str):
     return dt.inicio(name)
@@ -24,3 +23,7 @@ async def fundos11(name: str):
 @app.get("/hist/{name}")
 async def hist(name: str):
     return dt.hist(name)
+
+@app.get("/carteira")
+async def carteira():
+    return dt.carteira_publica()

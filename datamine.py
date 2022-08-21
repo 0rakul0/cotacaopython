@@ -1,4 +1,5 @@
 from datetime import datetime, date
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup as bs
 from joblib import Parallel, delayed
@@ -138,10 +139,10 @@ class datamine():
             historico = eval(historico)
             historico = historico
 
-            #result do status
-            cotacoes_rendimentos = soup_2.find('input',{'id':'results'})
+            # result do status
+            cotacoes_rendimentos = soup_2.find('input', {'id': 'results'})
             cotacoes_rendimentos = cotacoes_rendimentos.get('value')
-            cotacoes_rendimentos = cotacoes_rendimentos.replace("[{",'').replace("}]",'')
+            cotacoes_rendimentos = cotacoes_rendimentos.replace("[{", '').replace("}]", '')
             cotacoes_rendimentos = cotacoes_rendimentos.split("},{")
             for linha_cotaceos in cotacoes_rendimentos:
                 list_linha_cotaceos = linha_cotaceos.split(',')
@@ -166,11 +167,11 @@ class datamine():
         else:
             situacao_pg = 'INREGULAR'
 
-
-        dict_recurso = {'NOME_COTA':self.nome_cotacao, 'VALOR_COTA': valor_cota, 'VALOR_PATRIMONIO': valor_patrimonio, 'SEGMENTO': segmento,
+        dict_recurso = {'NOME_COTA': self.nome_cotacao, 'VALOR_COTA': valor_cota, 'VALOR_PATRIMONIO': valor_patrimonio,
+                        'SEGMENTO': segmento,
                         'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
                         'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
-                        'INFO': info, 'ULTIMO_PG':data,'SITUACAO_PG':situacao_pg, 'HISTORICO':hist_list}
+                        'INFO': info, 'ULTIMO_PG': data, 'SITUACAO_PG': situacao_pg, 'HISTORICO': hist_list}
         return dict_recurso
 
     def hist(self, name):
@@ -209,21 +210,43 @@ class datamine():
                             return cota
 
     def fund_cotas(self, soup, valor_min=None, valor_max=None, rendimento=None):
-        #lista de cotações
+        # lista de cotações
         lista_cotas = []
         # nome da cota
-        fundos = soup.find('section', {'id':'fiis-list'})
-        fundos = fundos.find('div', {'class':'row'})
+        fundos = soup.find('section', {'id': 'fiis-list'})
+        fundos = fundos.find('div', {'class': 'row'})
         fundos = fundos.find_all('span', {'class', 'symbol'})
         for nome_fundos in fundos:
             nome_fundos = nome_fundos.text
             lista_cotas.append(nome_fundos)
 
-        execucao = Parallel(n_jobs=-1)(delayed(self.executor)(acao=acao, valor_min=valor_min, valor_max=valor_max, rendimento=rendimento) for acao in lista_cotas)
+        execucao = Parallel(n_jobs=-1)(
+            delayed(self.executor)(acao=acao, valor_min=valor_min, valor_max=valor_max, rendimento=rendimento) for acao
+            in lista_cotas)
         return execucao
+
+    def carteira_publica(self):
+        carteira_df = pd.read_excel('./bi/minha_carteira.xlsx', header=0)
+
+        carteira_dict = []
+        for indice, linha in carteira_df.iterrows():
+            acoes = linha['acoes']
+            valor_cota = linha['valor_cota']
+            rendimento = linha['rendimento']
+            numero_de_cotas = linha['numero_de_cotas']
+            gastos = float(valor_cota * numero_de_cotas)
+            ganhos = float(rendimento * numero_de_cotas)
+            indice_lucro = float(100 * rendimento / valor_cota)
+            dict_carteira = {'ID': indice, 'ACOES': acoes, 'VALOR_UNI': valor_cota, 'RENDIMENTO': rendimento,
+                             'NUM_COTAS': numero_de_cotas, 'GASTOS': gastos, 'GANHOS': ganhos, 'RANK_%': indice_lucro}
+            carteira_dict.append(dict_carteira)
+        print(carteira_dict)
+        return carteira_dict
+
 
 if __name__ == "__main__":
     dt = datamine()
-    # dt.inicio('mxrf11')
-    dt.hist('mxrf11')
-    # dt.abaixo_de(min=10, max=40, rendimento=0.1)
+    # dt.inicio('xplg11')
+    dt.carteira_publica()
+    # dt.hist('mxrf11')
+    # dt.abaixo_de(min=0, max=15, rendimento=0.09)
