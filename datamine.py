@@ -94,7 +94,11 @@ class datamine():
             valor_patrimonio_pv = self.limpeza_real(valor_patrimonio_pv)
             preco_por_acao = (valor_mercado_pv / valor_patrimonio_pv).real
         except:
-            preco_por_acao = None
+            preco_por_acao = soup.find('span', text=re.compile('P/VP'))
+            preco_por_acao = preco_por_acao.find_next_sibling('span', {'class': 'indicator-value'}).text
+            preco_por_acao = preco_por_acao.replace(',', '.')
+            preco_por_acao = preco_por_acao.strip()
+            preco_por_acao = float(preco_por_acao)
 
         """
         Rentabilidade Mês / para renda variavel
@@ -186,7 +190,7 @@ class datamine():
         hist = hist['HISTORICO']
         return hist
 
-    def abaixo_de(self, min=None, max=None, rendimento=None):
+    def abaixo_de(self, min=None, max=None, rendimento=None, limit_liquidez=None, mes=None):
         url = "https://www.fundsexplorer.com.br/funds"
         headers = {
             'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/ 97.0.4692.99 Safari/537.36"}
@@ -194,15 +198,14 @@ class datamine():
         soup_fundo1 = bs(site1.content, 'html.parser')
 
         resultado = []
-        result = self.fund_cotas(soup_fundo1, valor_min=min, valor_max=max, rendimento=rendimento)
+        result = self.fund_cotas(soup_fundo1, valor_min=min, valor_max=max, rendimento=rendimento, limit_liquidez=limit_liquidez, mes=mes)
         for x in result:
             if x != None:
                 resultado.append(x)
-        print(resultado)
         result = resultado
         return result
 
-    def executor(self, acao, valor_min=None, valor_max=None, rendimento=None):
+    def executor(self, acao, valor_min=None, valor_max=None, rendimento=None, limit_liquidez=None, mes=None):
         result = self.inicio(acao)
         if result != None:
             valor_acao = result['VALOR_COTA']
@@ -210,13 +213,25 @@ class datamine():
                 if valor_acao > valor_min.real and valor_acao < valor_max.real:
                     data = result['ULTIMO_PG']
                     if data != None:
+                        mes_corte = data.split(' - ')
+                        mes_corte = mes_corte[-1]
+                        mes_corte = mes_corte.split('/')
+                        mes_corte = mes_corte[1]
                         corte = result['RENDIMENTO']
-                        if corte > rendimento:
-                            cota = acao, result['VALOR_COTA'], corte, result['SEGMENTO'], data
+                        liquedez = result['LIQUIDEZ_DIARIA']
+                        if corte > rendimento and liquedez > limit_liquidez and mes_corte == mes:
+                            try:
+                                if result['P/PV'] >= 1:
+                                    pvp = 'caro'
+                                else:
+                                    pvp = 'com desconto'
+                            except:
+                                pvp = None
+                            cota = result['LIQUIDEZ_DIARIA'], acao, result['VALOR_COTA'], corte, result['SEGMENTO'], data, result['P/PV'], pvp
                             print(f'fundos entre R${valor_min} e R${valor_max}, {cota}')
-                            return cota
+                            return {cota}
 
-    def fund_cotas(self, soup, valor_min=None, valor_max=None, rendimento=None):
+    def fund_cotas(self, soup, valor_min=None, valor_max=None, rendimento=None, limit_liquidez=None, mes=None):
         # lista de cotações
         lista_cotas = []
         # nome da cota
@@ -228,7 +243,7 @@ class datamine():
             lista_cotas.append(nome_fundos)
 
         execucao = Parallel(n_jobs=-1)(
-            delayed(self.executor)(acao=acao, valor_min=valor_min, valor_max=valor_max, rendimento=rendimento) for acao
+            delayed(self.executor)(acao=acao, valor_min=valor_min, valor_max=valor_max, rendimento=rendimento, limit_liquidez=limit_liquidez, mes=mes) for acao
             in lista_cotas)
         return execucao
 
@@ -252,7 +267,7 @@ class datamine():
 
 if __name__ == "__main__":
     dt = datamine()
-    dt.inicio('xplg11')
+    # dt.inicio('xplg11')
     # dt.carteira_publica()
     # dt.hist('mxrf11')
-    # dt.abaixo_de(min=0, max=15, rendimento=0.09)
+    dt.abaixo_de(min=0, max=100, rendimento=0.9, limit_liquidez=30000, mes='08')
