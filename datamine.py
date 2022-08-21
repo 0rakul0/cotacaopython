@@ -45,6 +45,11 @@ class datamine():
 
     def run(self, soup, soup_2):
         try:
+            # Liquidez Diária
+            liquidez_d = soup.find('span', text=re.compile('Liquidez Diária'))
+            liquidez_d = liquidez_d.find_next_sibling('span', {'class': 'indicator-value'}).text
+            liquidez_d = liquidez_d.strip()
+
             # valor da cota
             valor_cota = soup.find('div', {'id': 'stock-price'})
             valor_cota = valor_cota.find('span', {'class': 'price'}).text
@@ -167,8 +172,8 @@ class datamine():
         else:
             situacao_pg = 'INREGULAR'
 
-        dict_recurso = {'NOME_COTA': self.nome_cotacao, 'VALOR_COTA': valor_cota, 'VALOR_PATRIMONIO': valor_patrimonio,
-                        'SEGMENTO': segmento,
+        dict_recurso = {'LIQUIDEZ_DIARIA':liquidez_d, 'NOME_COTA': self.nome_cotacao, 'VALOR_COTA': valor_cota,
+                        'VALOR_PATRIMONIO': valor_patrimonio, 'SEGMENTO': segmento,
                         'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
                         'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
                         'INFO': info, 'ULTIMO_PG': data, 'SITUACAO_PG': situacao_pg, 'HISTORICO': hist_list}
@@ -246,7 +251,7 @@ class datamine():
 
 if __name__ == "__main__":
     dt = datamine()
-    # dt.inicio('xplg11')
-    dt.carteira_publica()
+    dt.inicio('xplg11')
+    # dt.carteira_publica()
     # dt.hist('mxrf11')
     # dt.abaixo_de(min=0, max=15, rendimento=0.09)
