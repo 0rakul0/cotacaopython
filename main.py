@@ -16,9 +16,9 @@ async def root():
 async def fundos11(name: str):
     return dt.inicio(name)
 
-@app.get("/hist/{name}")
-async def hist(name: str):
-    return dt.hist(name)
+@app.get("/historico/{name}")
+async def historico(name: str):
+    return dt.historico_inicio(name)
 
 @app.get("/carteira")
 async def carteira():

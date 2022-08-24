@@ -12,6 +12,7 @@ class datamine():
         self.valor_cota = None
         self.valor_rendimento = None
         self.historico = []
+        self.situacao_pg = None
         self.acoes_valores_rendimentos = []
 
     def limpeza_real(self, texto):
@@ -139,11 +140,38 @@ class datamine():
             segmento = segmento.strip()
         except:
             segmento = None
+
+        hist_list = self.hist(soup, soup_2)
+
+        dict_recurso = {'LIQUIDEZ_DIARIA':liquidez_d, 'NOME_COTA': self.nome_cotacao, 'VALOR_COTA': valor_cota,
+                        'VALOR_PATRIMONIO': valor_patrimonio, 'SEGMENTO': segmento,
+                        'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
+                        'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
+                        'INFO': info, 'ULTIMO_PG': data, 'SITUACAO_PG': self.situacao_pg, 'HISTORICO': hist_list}
+        return dict_recurso
+
+    def historico_inicio(self, nome):
+        self.nome_cotacao = nome
+        url_2 = f'https://statusinvest.com.br/fundos-imobiliarios/{nome}'
+        url_1 = f"https://www.fundsexplorer.com.br/funds/{nome}"
+        headers = {
+            'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/ 97.0.4692.99 Safari/537.36"}
+        site1 = requests.get(url_1, headers=headers)
+        soup_fundo1 = bs(site1.content, 'html.parser')
+
+        headers = {
+            'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/ 97.0.4692.99 Safari/537.36"}
+        site2 = requests.get(url_2, headers=headers)
+        soup_fundo2 = bs(site2.content, 'html.parser')
+
+        result = self.hist(soup_fundo1, soup_fundo2)
+
+        return result
+
+    def hist(self, soup, soup_2):
         try:
             # grafico das cotações do funds
-            # hist_dict = {}
             hist_list = []
-            static_rendimento = 0
             cotacoes_historico = soup.find('section', {'id': 'quotations'})
             historico = cotacoes_historico.get('data-chart')
             historico = historico.replace("\\", '')
@@ -168,31 +196,16 @@ class datamine():
                     if data_pagamento == dado['day']:
                         hist_item = {'DATA': data_pagamento, 'VALOR_COTA': dado['value'], 'RENDIMENTO': rendimento_pg}
                         hist_list.append(hist_item)
-
-
         except:
             hist_list = None
 
         # situação pag
         if hist_list != None:
-            situacao_pg = 'REGULAR'
+            self.situacao_pg = 'REGULAR'
         else:
-            situacao_pg = 'INREGULAR'
+            self.situacao_pg = 'INREGULAR'
 
-
-
-        dict_recurso = {'LIQUIDEZ_DIARIA':liquidez_d, 'NOME_COTA': self.nome_cotacao, 'VALOR_COTA': valor_cota,
-                        'VALOR_PATRIMONIO': valor_patrimonio, 'SEGMENTO': segmento,
-                        'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
-                        'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
-                        'INFO': info, 'ULTIMO_PG': data, 'SITUACAO_PG': situacao_pg, 'HISTORICO': hist_list}
-        return dict_recurso
-
-    def hist(self, name):
-        hist = self.inicio(name)
-        hist = hist['HISTORICO']
-
-        return hist
+        return hist_list
 
     def abaixo_de(self, min=None, max=None, rendimento=None, limit_liquidez=None, mes=None):
         url = "https://www.fundsexplorer.com.br/funds"
@@ -271,7 +284,7 @@ class datamine():
         return carteira_dict
 if __name__ == "__main__":
     dt = datamine()
-    dt.inicio('xplg11')
+    # dt.inicio('xplg11')
     # dt.carteira_publica()
-    # dt.hist('mxrf11')
+    dt.historico_inicio('mxrf11')
     # dt.abaixo_de(min=0, max=100, rendimento=0.9, limit_liquidez=30000, mes='08')
