@@ -1,5 +1,7 @@
 from datamine import *
 import re
+import numpy as np
+
 class calc():
     def igualdade(self, acoes, valor_disponivel):
         """
@@ -40,9 +42,34 @@ class calc():
         print({rendimento_mes})
         return rendimento_mes
 
+    def otimizacao(self, valor_para_gastar=None):
+        """
+        itens: lista de itens
+        restrições: valor do produto
+        valor_para_gastar: valor maximo
+        """
+        cart = datamine()
+        ct = cart.carteira_publica()
+        list_acoes = []
+        list_restricoes = []
+        list_risco = []
+        for item in ct:
+            acao = item['ACOES']
+            restricoes = item['VALOR_UNI']
+            risco = None
+
+
+            list_acoes.append(acao)
+            list_restricoes.append(restricoes)
+            list_risco.append(risco)
+
+        valor_max = valor_para_gastar / len(list_acoes)
+        print(list_acoes, list_restricoes, valor_max, list_risco)
+
 if __name__ == "__main__":
     cl = calc()
     dt = datamine()
-    acoes = dt.abaixo_de(min=0, max=16, rendimento=0.1)
-    valor_disponivel = 1000
-    cl.igualdade(acoes, valor_disponivel)
+    # acoes = dt.abaixo_de(min=0, max=16, rendimento=0.1)
+    # valor_disponivel = 1000
+    # cl.igualdade(acoes, valor_disponivel)
+    cl.otimizacao(1200)

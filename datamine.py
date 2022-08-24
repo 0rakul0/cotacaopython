@@ -139,11 +139,11 @@ class datamine():
             segmento = segmento.strip()
         except:
             segmento = None
-
         try:
             # grafico das cotações do funds
             # hist_dict = {}
             hist_list = []
+            static_rendimento = 0
             cotacoes_historico = soup.find('section', {'id': 'quotations'})
             historico = cotacoes_historico.get('data-chart')
             historico = historico.replace("\\", '')
@@ -169,6 +169,7 @@ class datamine():
                         hist_item = {'DATA': data_pagamento, 'VALOR_COTA': dado['value'], 'RENDIMENTO': rendimento_pg}
                         hist_list.append(hist_item)
 
+
         except:
             hist_list = None
 
@@ -177,6 +178,8 @@ class datamine():
             situacao_pg = 'REGULAR'
         else:
             situacao_pg = 'INREGULAR'
+
+
 
         dict_recurso = {'LIQUIDEZ_DIARIA':liquidez_d, 'NOME_COTA': self.nome_cotacao, 'VALOR_COTA': valor_cota,
                         'VALOR_PATRIMONIO': valor_patrimonio, 'SEGMENTO': segmento,
@@ -188,6 +191,7 @@ class datamine():
     def hist(self, name):
         hist = self.inicio(name)
         hist = hist['HISTORICO']
+
         return hist
 
     def abaixo_de(self, min=None, max=None, rendimento=None, limit_liquidez=None, mes=None):
@@ -251,23 +255,23 @@ class datamine():
         carteira_df = pd.read_excel('./bi/minha_carteira.xlsx', header=0, sheet_name='Planilha1')
         carteira_dict = []
         for indice, linha in carteira_df.iterrows():
-            acoes = linha['acoes']
-            valor_cota = linha['valor_cota']
-            rendimento = linha['rendimento']
-            numero_de_cotas = linha['numero_de_cotas']
-            gastos = float(valor_cota * numero_de_cotas)
-            ganhos = float(rendimento * numero_de_cotas)
-            indice_lucro = float(100 * rendimento / valor_cota)
-            dict_carteira = {'ID': indice, 'ACOES': acoes, 'VALOR_UNI': valor_cota, 'RENDIMENTO': rendimento,
-                             'NUM_COTAS': numero_de_cotas, 'GASTOS': gastos, 'GANHOS': ganhos, 'RANK_%': indice_lucro}
+            cart_info = self.inicio(linha['acoes'])
+            nome_acao = cart_info['NOME_COTA']
+            liq_diaria = cart_info['LIQUIDEZ_DIARIA']
+            valor_cota = cart_info['VALOR_COTA']
+            rend = cart_info['RENDIMENTO']
+            n_cotas = linha['numero_de_cotas']
+            gastos = float(valor_cota * n_cotas)
+            ganhos = float(rend * n_cotas)
+            indice_lucro = float(100 * rend / valor_cota)
+
+            dict_carteira = {'ID': indice,'LIQ_DIARIA':liq_diaria, 'ACOES': nome_acao, 'VALOR_UNI': valor_cota, 'RENDIMENTO': rend,
+                                 'NUM_COTAS': n_cotas, 'GASTOS': gastos, 'GANHOS': ganhos, 'RANK_%': indice_lucro}
             carteira_dict.append(dict_carteira)
-        print(carteira_dict)
         return carteira_dict
-
-
 if __name__ == "__main__":
     dt = datamine()
-    # dt.inicio('xplg11')
+    dt.inicio('xplg11')
     # dt.carteira_publica()
     # dt.hist('mxrf11')
-    dt.abaixo_de(min=0, max=100, rendimento=0.9, limit_liquidez=30000, mes='08')
+    # dt.abaixo_de(min=0, max=100, rendimento=0.9, limit_liquidez=30000, mes='08')
