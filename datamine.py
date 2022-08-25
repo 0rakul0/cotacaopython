@@ -167,10 +167,8 @@ class datamine():
         # ativos
         ativo = ''
         estado = ''
-        ativos = soup.find('span', text=re.compile('Área Bruta Locável por Estado'))
-        ativos = ativos.find_next_sibling('div', {'id':'fund-actives-chart-info-wrapper'})
-        ativo = ativos.find('span', {'class':'fund-actives'}).text
-        estado = ativos.find('span', {'class':'fund-states'}).text
+        ativo = soup.find('span', {'class':'fund-actives'}).text
+        estado = soup.find('span', {'class':'fund-states'}).text
 
         ht = historico()
         hist_list = ht.historico_inicio(nome=self.nome_cotacao)
