@@ -164,6 +164,14 @@ class datamine():
             linha = linha[-1]
             vinculos_list.append(linha)
 
+        # ativos
+        ativo = ''
+        estado = ''
+        ativos = soup.find('span', text=re.compile('Área Bruta Locável por Estado'))
+        ativos = ativos.find_next_sibling('div', {'id':'fund-actives-chart-info-wrapper'})
+        ativo = ativos.find('span', {'class':'fund-actives'}).text
+        estado = ativos.find('span', {'class':'fund-states'}).text
+
         ht = historico()
         hist_list = ht.historico_inicio(nome=self.nome_cotacao)
 
@@ -176,6 +184,7 @@ class datamine():
 
         dict_recurso = {'LIQUIDEZ_DIARIA':liquidez_d, 'NOME_COTA': self.nome_cotacao, 'VALOR_COTA': valor_cota,
                         'VALOR_PATRIMONIO': valor_patrimonio_pv, 'SEGMENTO': segmento,'VINCULOS':vinculos_list,
+                        'ATIVOS':ativo, 'ESTADOS':estado,
                         'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
                         'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
                         'INFO': info, 'ULTIMO_PG': data, 'SITUACAO_PG': self.situacao_pg,
