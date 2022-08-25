@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup as bs
 from joblib import Parallel, delayed
 import re
+from historico import *
 
 
 class datamine():
@@ -42,6 +43,13 @@ class datamine():
 
         result = self.run(soup_fundo1, soup_fundo2)
         self.nome_cotacao = nome
+
+        if result == None and site1.status_code == 500:
+            print(f'site 1 off {site1}')
+            result = self.so_site2(soup_fundo2)
+        elif result == None and site2.status_code == 500:
+            print(f'site 2 off {site2}')
+
         return result
 
     def run(self, soup, soup_2):
@@ -82,6 +90,8 @@ class datamine():
         except:
             return None
 
+        valor_mercado_pv = None
+        valor_patrimonio_pv = None
         try:
             """
             P/VP = Valor de mercado na bolsa de valores / Valor patrimonial da empresa
@@ -94,6 +104,7 @@ class datamine():
             valor_patrimonio_pv = valor_patrimonio_pv.find_next_sibling('span', {'class': 'sub-value'}).text
             valor_patrimonio_pv = self.limpeza_real(valor_patrimonio_pv)
             preco_por_acao = (valor_mercado_pv / valor_patrimonio_pv).real
+
         except:
             preco_por_acao = soup.find('span', text=re.compile('P/VP'))
             preco_por_acao = preco_por_acao.find_next_sibling('span', {'class': 'indicator-value'}).text
@@ -139,65 +150,22 @@ class datamine():
             segmento = segmento.find_next_sibling('span', {'class': 'description'}).text
             segmento = segmento.strip()
         except:
-            segmento = None
+            segmento = soup_2.find('h3', text=re.compile('Segmento'))
+            segmento = segmento.find_next_sibling('strong', {'class': 'value'}).text
 
-        hist_list = self.hist(soup, soup_2)
+        # vinculos
+        vinculos_list = []
+        vinculos = soup_2.find('b', text=re.compile('FIIs relacionadas:'))
+        vinculos = vinculos.find_next_sibling('div')
+        vinculos = vinculos.find_all('a')
+        for linha in vinculos:
+            linha = linha.get('href')
+            linha = linha.split('/')
+            linha = linha[-1]
+            vinculos_list.append(linha)
 
-        dict_recurso = {'LIQUIDEZ_DIARIA':liquidez_d, 'NOME_COTA': self.nome_cotacao, 'VALOR_COTA': valor_cota,
-                        'VALOR_PATRIMONIO': valor_patrimonio, 'SEGMENTO': segmento,
-                        'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
-                        'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
-                        'INFO': info, 'ULTIMO_PG': data, 'SITUACAO_PG': self.situacao_pg, 'HISTORICO': hist_list}
-        return dict_recurso
-
-    def historico_inicio(self, nome):
-        self.nome_cotacao = nome
-        url_2 = f'https://statusinvest.com.br/fundos-imobiliarios/{nome}'
-        url_1 = f"https://www.fundsexplorer.com.br/funds/{nome}"
-        headers = {
-            'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/ 97.0.4692.99 Safari/537.36"}
-        site1 = requests.get(url_1, headers=headers)
-        soup_fundo1 = bs(site1.content, 'html.parser')
-
-        headers = {
-            'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/ 97.0.4692.99 Safari/537.36"}
-        site2 = requests.get(url_2, headers=headers)
-        soup_fundo2 = bs(site2.content, 'html.parser')
-
-        result = self.hist(soup_fundo1, soup_fundo2)
-
-        return result
-
-    def hist(self, soup, soup_2):
-        try:
-            # grafico das cotações do funds
-            hist_list = []
-            cotacoes_historico = soup.find('section', {'id': 'quotations'})
-            historico = cotacoes_historico.get('data-chart')
-            historico = historico.replace("\\", '')
-            historico = eval(historico)
-            historico = historico
-
-            # result do status
-            cotacoes_rendimentos = soup_2.find('input', {'id': 'results'})
-            cotacoes_rendimentos = cotacoes_rendimentos.get('value')
-            cotacoes_rendimentos = cotacoes_rendimentos.replace("[{", '').replace("}]", '')
-            cotacoes_rendimentos = cotacoes_rendimentos.split("},{")
-            for linha_cotaceos in cotacoes_rendimentos:
-                list_linha_cotaceos = linha_cotaceos.split(',')
-                data_pg = list_linha_cotaceos[5][6:]
-                data_pg = data_pg[:-1]
-                data_pagamento = data_pg.split('/')
-                data_pagamento = f'{data_pagamento[2]}-{data_pagamento[1]}-{data_pagamento[0]}'
-                rendimento_pg = list_linha_cotaceos[8][4:]
-                rendimento_pg = rendimento_pg[:-1]
-                rendimento_pg = float(rendimento_pg)
-                for dado in historico:
-                    if data_pagamento == dado['day']:
-                        hist_item = {'DATA': data_pagamento, 'VALOR_COTA': dado['value'], 'RENDIMENTO': rendimento_pg}
-                        hist_list.append(hist_item)
-        except:
-            hist_list = None
+        ht = historico()
+        hist_list = ht.historico_inicio(nome=self.nome_cotacao)
 
         # situação pag
         if hist_list != None:
@@ -205,7 +173,72 @@ class datamine():
         else:
             self.situacao_pg = 'INREGULAR'
 
-        return hist_list
+
+        dict_recurso = {'LIQUIDEZ_DIARIA':liquidez_d, 'NOME_COTA': self.nome_cotacao, 'VALOR_COTA': valor_cota,
+                        'VALOR_PATRIMONIO': valor_patrimonio_pv, 'SEGMENTO': segmento,'VINCULOS':vinculos_list,
+                        'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
+                        'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
+                        'INFO': info, 'ULTIMO_PG': data, 'SITUACAO_PG': self.situacao_pg,
+                        'VALOR_MERCADO':valor_mercado_pv, 'HISTORICO': hist_list}
+        return dict_recurso
+
+    def so_site2(self, soup_2):
+        # Nome da cota
+        nome_cota = soup_2.find('h2', {'class':'card-title'}).text
+        nome_cota = nome_cota.split(' ')
+        nome_cota = nome_cota[-1]
+
+        # Liquidez média diária
+        liq_media_day = soup_2.find('span', text=re.compile('Liq\. méd\. diária'))
+        liq_media_day = liq_media_day.find_parent('div').find('strong', {'class':'value'}).text
+        liq_media_day = self.limpeza_real(liq_media_day)
+
+        # valor da cota
+        valor_cota = soup_2.find('h3', text=re.compile('Valor atual'))
+        valor_cota = valor_cota.find_next_sibling('strong',{'class':'value'}).text
+        valor_cota = self.limpeza_real(valor_cota)
+
+        # porcentagem de dividendos
+        porcentagem_divid = soup_2.find('small', text=re.compile('Rendimento'))
+        porcentagem_divid = porcentagem_divid.find_next('b').text
+        porcentagem_divid = self.limpeza_real(porcentagem_divid)
+
+        # ultimo rendimento
+        ultimo_rendimento = soup_2.find('span', text=re.compile('Último rendimento'))
+        ultimo_rendimento = ultimo_rendimento.find_next('div', {'class':'info'}).find('strong', {'class':'value'}).text
+        ultimo_rendimento = self.limpeza_real(ultimo_rendimento)
+
+        # pvp
+        valor_mercado_pv = None
+        valor_patrimonio_pv = None
+        valor_mercado_pv = soup_2.find('span', text=re.compile('Valor de mercado'))
+        valor_mercado_pv = valor_mercado_pv.find_next_sibling('span', {'class': 'sub-value'}).text
+        valor_mercado_pv = self.limpeza_real(valor_mercado_pv)
+        valor_patrimonio_pv = soup_2.find('span', text=re.compile('Patrimônio'))
+        valor_patrimonio_pv = valor_patrimonio_pv.find_next_sibling('span', {'class': 'sub-value'}).text
+        valor_patrimonio_pv = self.limpeza_real(valor_patrimonio_pv)
+        preco_por_acao = (valor_mercado_pv / valor_patrimonio_pv).real
+
+        # setor
+        segmento = soup_2.find('h3', text=re.compile('Segmento'))
+        segmento = segmento.find_next_sibling('strong', {'class':'value'}).text
+
+        # vinculos
+        vinculos_list = []
+        vinculos = soup_2.find('b', text=re.compile('FIIs relacionadas:'))
+        vinculos = vinculos.find_next_sibling('div')
+        vinculos = vinculos.find_all('a')
+        for linha in vinculos:
+            linha = linha.get('href')
+            linha = linha.split('/')
+            linha = linha[-1]
+            vinculos_list.append(linha)
+
+        ht = historico()
+        hist_list = ht.historico_inicio(nome=nome_cota)
+
+        dict_recurso = {'NOME_COTA':nome_cota,'SEGMENTO':segmento,'VINCULOS':vinculos_list,'LIQUIDEZ_MEDIA':liq_media_day,'VALOR_COTA':valor_cota,'PORCENMTAGEM_DIVIDENDOS':porcentagem_divid,'ULTIMO_RENDIMENTO':ultimo_rendimento,'P/VP': preco_por_acao, 'VALOR_MERCADO':valor_mercado_pv, 'VALOR_PATRIMONIO':valor_patrimonio_pv, 'HISTORICO':hist_list}
+        return dict_recurso
 
     def abaixo_de(self, min=None, max=None, rendimento=None, limit_liquidez=None, mes=None):
         url = "https://www.fundsexplorer.com.br/funds"
@@ -284,7 +317,7 @@ class datamine():
         return carteira_dict
 if __name__ == "__main__":
     dt = datamine()
-    # dt.inicio('xplg11')
+    ht = historico()
+    dt.inicio('xplg11')
     # dt.carteira_publica()
-    dt.historico_inicio('mxrf11')
     # dt.abaixo_de(min=0, max=100, rendimento=0.9, limit_liquidez=30000, mes='08')

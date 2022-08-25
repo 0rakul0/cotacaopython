@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from datamine import *
+from historico import *
 
 app = FastAPI()
 dt = datamine()
-
+ht = historico()
 
 @app.get("/")
 async def root():
@@ -18,7 +19,7 @@ async def fundos11(name: str):
 
 @app.get("/historico/{name}")
 async def historico(name: str):
-    return dt.historico_inicio(name)
+    return ht.historico_inicio(name)
 
 @app.get("/carteira")
 async def carteira():
