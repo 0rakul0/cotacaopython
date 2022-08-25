@@ -167,8 +167,12 @@ class datamine():
         # ativos
         ativo = ''
         estado = ''
-        ativo = soup.find('span', {'class':'fund-actives'}).text
-        estado = soup.find('span', {'class':'fund-states'}).text
+        try:
+            ativo = soup.find('span', {'class':'fund-actives'}).text
+            estado = soup.find('span', {'class':'fund-states'}).text
+        except:
+            ativo = ''
+            estado = ''
 
         ht = historico()
         hist_list = ht.historico_inicio(nome=self.nome_cotacao)
