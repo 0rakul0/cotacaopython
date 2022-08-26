@@ -58,7 +58,6 @@ class calc():
             restricoes = item['VALOR_UNI']
             risco = None
 
-
             list_acoes.append(acao)
             list_restricoes.append(restricoes)
             list_risco.append(risco)
@@ -69,7 +68,7 @@ class calc():
 if __name__ == "__main__":
     cl = calc()
     dt = datamine()
-    # acoes = dt.abaixo_de(min=0, max=16, rendimento=0.1)
-    # valor_disponivel = 1000
-    # cl.igualdade(acoes, valor_disponivel)
-    cl.otimizacao(1200)
+    acoes = dt.abaixo_de(min=0, max=20, rendimento=0.1)
+    valor_disponivel = 500
+    cl.igualdade(acoes, valor_disponivel)
+    # cl.otimizacao(1200)

@@ -154,15 +154,30 @@ class datamine():
             segmento = segmento.find_next_sibling('strong', {'class': 'value'}).text
 
         # vinculos
-        vinculos_list = []
-        vinculos = soup_2.find('b', text=re.compile('FIIs relacionadas:'))
-        vinculos = vinculos.find_next_sibling('div')
-        vinculos = vinculos.find_all('a')
-        for linha in vinculos:
-            linha = linha.get('href')
-            linha = linha.split('/')
-            linha = linha[-1]
-            vinculos_list.append(linha)
+        try:
+            vinculos_list = []
+            vinculos = soup_2.find('b', text=re.compile('FIIs relacionadas:'))
+            vinculos = vinculos.find_next_sibling('div')
+            vinculos = vinculos.find_all('a')
+            for linha in vinculos:
+                linha = linha.get('href')
+                linha = linha.split('/')
+                linha = linha[-1]
+                vinculos_list.append(linha)
+        except:
+            vinculos_list = []
+            vinculos = soup.find('div', {'id':'related-fiis-carousel'})
+            vinculos = vinculos.find_all('div', {'class':'carousel-cell'})
+            for vinc in vinculos:
+                try:
+                    nome_vinc = vinc.find('div', {'class':'item'})
+                    nome_vinc = nome_vinc.find('span', {'class':'symbol'}).text
+                    if nome_vinc != None:
+                        vinculos_list.append(nome_vinc)
+                except:
+                    pass
+        else:
+            vinculos_list = []
 
         # ativos
         ativo = ''
@@ -171,7 +186,7 @@ class datamine():
             ativo = soup.find('span', {'class':'fund-actives'}).text
             estado = soup.find('span', {'class':'fund-states'}).text
         except:
-            ativo = ''
+            ativo = len(vinculos_list)
             estado = ''
 
         ht = historico()
@@ -329,6 +344,6 @@ class datamine():
 if __name__ == "__main__":
     dt = datamine()
     ht = historico()
-    dt.inicio('xplg11')
+    dt.inicio('rzag11')
     # dt.carteira_publica()
     # dt.abaixo_de(min=0, max=100, rendimento=0.9, limit_liquidez=30000, mes='08')

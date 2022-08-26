@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup as bs
 class historico():
     def historico_inicio(self, nome):
         self.nome_cotacao = nome
+        self.historico = []
         url_2 = f'https://statusinvest.com.br/fundos-imobiliarios/{nome}'
         url_1 = f"https://www.fundsexplorer.com.br/funds/{nome}"
         headers = {
@@ -34,7 +35,7 @@ class historico():
             historico = cotacoes_historico.get('data-chart')
             historico = historico.replace("\\", '')
             historico = eval(historico)
-            historico = historico
+            self.historico = historico
 
             # result do status
             cotacoes_rendimentos = soup_2.find('input', {'id': 'results'})
@@ -54,8 +55,9 @@ class historico():
                     if data_pagamento == dado['day']:
                         hist_item = {'DATA': data_pagamento, 'VALOR_COTA': dado['value'], 'RENDIMENTO': rendimento_pg}
                         hist_list.append(hist_item)
+
         except:
-            hist_list = None
+            hist_list = self.historico
 
         return hist_list
 
