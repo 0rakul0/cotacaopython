@@ -18,11 +18,11 @@ async def root():
                ]
             }
 
-@app.get("/fundos11/{name}")
+@app.get("/fundos11/nome={name}")
 async def fundos11(name: str):
     return dt.inicio(name)
 
-@app.get("/historico/{name}")
+@app.get("/historico/nome={name}")
 async def historico(name: str):
     return ht.historico_inicio(name)
 
