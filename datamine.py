@@ -282,6 +282,7 @@ class datamine():
         carteira_dict = []
         for indice, linha in carteira_df.iterrows():
             cart_info = self.inicio(linha['acoes'])
+            segmento = cart_info['SEGMENTO']
             nome_acao = cart_info['NOME_COTA']
             liq_diaria = cart_info['LIQUIDEZ_DIARIA']
             valor_cota = cart_info['VALOR_COTA']
@@ -292,7 +293,7 @@ class datamine():
             indice_lucro = float(100 * rend / valor_cota)
 
             dict_carteira = {'ID': indice,'LIQ_DIARIA':liq_diaria, 'ACOES': nome_acao, 'VALOR_UNI': valor_cota, 'RENDIMENTO': rend,
-                                 'NUM_COTAS': n_cotas, 'GASTOS': gastos, 'GANHOS': ganhos, 'RANK_%': indice_lucro}
+                                 'NUM_COTAS': n_cotas, 'GASTOS': gastos, 'GANHOS': ganhos, 'RANK_%': indice_lucro ,'SEGMENTO':segmento}
             carteira_dict.append(dict_carteira)
         return carteira_dict
 if __name__ == "__main__":
