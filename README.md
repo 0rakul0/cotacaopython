@@ -8,3 +8,6 @@ https://cotacaopython.herokuapp.com/
 https://cotacaopython.herokuapp.com/fundos11/mxrf11
 
 ### O histórico trás os 10 ultimos variações do valor do fundo
+
+
+https://fiis.com.br/rzag11/

@@ -95,7 +95,8 @@ class datamine():
         try:
             """
             P/VP = Valor de mercado na bolsa de valores / Valor patrimonial da empresa
-            P/PV se tiver abaixo de 1 é pq tem desconto, logo significa que a empresa vale em bolsa menos do que o seu patrimônio líquido. Isso pode ser uma boa oportunidade para o investidor.
+            P/PV se tiver abaixo de 1 é pq tem desconto, logo significa que a empresa vale em bolsa
+            menos do que o seu patrimônio líquido. Isso pode ser uma boa oportunidade para o investidor.
             """
             valor_mercado_pv = soup_2.find('span', text=re.compile('Valor de mercado'))
             valor_mercado_pv = valor_mercado_pv.find_next_sibling('span', {'class': 'sub-value'}).text
@@ -139,7 +140,7 @@ class datamine():
             data = re.search(re.compile('na data .{5}'), info[0])
             data = data.group(0)
             data = data.split('/')
-            data = f'ultimo pagamento - {data[0][-2:]}/{data[1]}/2022'
+            data = f'{data[0][-2:]}/{data[1]}/2022'
         except:
             data = None
         """
@@ -207,11 +208,11 @@ class datamine():
 
         dict_recurso = {'LIQUIDEZ_DIARIA':liquidez_d, 'NOME_COTA': self.nome_cotacao, 'VALOR_COTA': valor_cota,
                         'VALOR_PATRIMONIO': valor_patrimonio_pv, 'SEGMENTO': segmento,'VINCULOS':vinculos_list,
-                        'ATIVOS':ativo, 'ESTADOS':estado,
-                        'PORCENTAGEM_DIVIDENDOS': valor_porcentagem, 'PORCETAGEM_RENDIMENTO': situacao_porcentagem,
-                        'RENDIMENTO': rendimento, 'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade,
-                        'INFO': info, 'ULTIMO_PG': data, 'SITUACAO_PG': self.situacao_pg,
-                        'VALOR_MERCADO':valor_mercado_pv, 'HISTORICO': hist_list}
+                        'ATIVOS':ativo, 'ESTADOS':estado, 'PORCENTAGEM_DIVIDENDOS': valor_porcentagem,
+                        'PORCETAGEM_RENDIMENTO': situacao_porcentagem,'RENDIMENTO': rendimento,
+                        'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade, 'INFO': info,
+                        'ULTIMO_PG': data, 'SITUACAO_PG': self.situacao_pg,'VALOR_MERCADO':valor_mercado_pv,
+                        'HISTORICO': hist_list}
         return dict_recurso
 
     def so_site2(self, soup_2):
@@ -272,7 +273,12 @@ class datamine():
             ht = historico()
             hist_list = ht.historico_inicio(nome=nome_cota)
 
-            dict_recurso = {'NOME_COTA':nome_cota,'SEGMENTO':segmento,'VINCULOS':vinculos_list,'LIQUIDEZ_MEDIA':liq_media_day,'VALOR_COTA':valor_cota,'PORCENMTAGEM_DIVIDENDOS':porcentagem_divid,'ULTIMO_RENDIMENTO':ultimo_rendimento,'P/VP': preco_por_acao, 'VALOR_MERCADO':valor_mercado_pv, 'VALOR_PATRIMONIO':valor_patrimonio_pv, 'HISTORICO':hist_list}
+            dict_recurso = {'NOME_COTA': nome_cota, 'SEGMENTO': segmento, 'VINCULOS': vinculos_list,
+                            'LIQUIDEZ_MEDIA': liq_media_day, 'VALOR_COTA': valor_cota,
+                            'PORCENMTAGEM_DIVIDENDOS': porcentagem_divid, 'ULTIMO_RENDIMENTO': ultimo_rendimento,
+                            'P/VP': preco_por_acao, 'VALOR_MERCADO': valor_mercado_pv,
+                            'VALOR_PATRIMONIO': valor_patrimonio_pv, 'HISTORICO': hist_list}
+
             return dict_recurso
         except:
             return None
@@ -292,13 +298,16 @@ class datamine():
             ganhos = float(rend * n_cotas)
             indice_lucro = float(100 * rend / valor_cota)
 
-            dict_carteira = {'ID': indice,'LIQ_DIARIA':liq_diaria, 'ACOES': nome_acao, 'VALOR_UNI': valor_cota, 'RENDIMENTO': rend,
-                                 'NUM_COTAS': n_cotas, 'GASTOS': gastos, 'GANHOS': ganhos, 'RANK_%': indice_lucro ,'SEGMENTO':segmento}
+            dict_carteira = {'ID': indice, 'LIQ_DIARIA': liq_diaria, 'ACOES': nome_acao, 'VALOR_UNI': valor_cota,
+                             'RENDIMENTO': rend,
+                             'NUM_COTAS': n_cotas, 'GASTOS': gastos, 'GANHOS': ganhos, 'RANK_%': indice_lucro,
+                             'SEGMENTO': segmento}
+
             carteira_dict.append(dict_carteira)
         return carteira_dict
 if __name__ == "__main__":
     dt = datamine()
     # ht = historico()
-    # dt.inicio('rzag11')
+    dt.inicio('rzag11')
     # dt.carteira_publica()
 
