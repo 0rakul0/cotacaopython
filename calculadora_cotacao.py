@@ -66,4 +66,4 @@ class calculadora_cotacao():
 
 if __name__ == "__main__":
     cc = calculadora_cotacao()
-    cc.abaixo_de(min=0, max=100, rendimento=0.9, limit_liquidez=30000, mes='08')
+    cc.abaixo_de(min=0, max=100, rendimento=0.1, limit_liquidez=25000, mes='08')
