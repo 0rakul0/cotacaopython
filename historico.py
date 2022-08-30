@@ -87,7 +87,7 @@ class historico():
             rendimento_pg = list_linha_cotaceos[8][4:]
             rendimento_pg = rendimento_pg[:-1]
             rendimento_pg = float(rendimento_pg)
-            hist_site_2 = {'NOME_COTA':self.nome_cotacao,'DATA':data_pagamento, 'RENDIMENTO':rendimento_pg}
+            hist_site_2 = {'NOME_COTA':self.nome_cotacao,'DATA':data_pagamento,'VALOR_COTA':None, 'RENDIMENTO':rendimento_pg}
             hist_list_site_2.append(hist_site_2)
         return hist_list_site_2
 if __name__=="__main__":

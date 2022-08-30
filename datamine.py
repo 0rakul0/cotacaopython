@@ -213,6 +213,7 @@ class datamine():
                         'P/PV': preco_por_acao, 'RENTABILIDADE_MÊS': rentabilidade, 'INFO': info,
                         'ULTIMO_PG': data, 'SITUACAO_PG': self.situacao_pg,'VALOR_MERCADO':valor_mercado_pv,
                         'HISTORICO': hist_list}
+
         return dict_recurso
 
     def so_site2(self, soup_2):

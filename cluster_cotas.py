@@ -14,13 +14,21 @@ class cluster():
 
         self.extrat(soup_fundo1)
 
-        return soup_fundo1
 
     def extrat(self, soup):
+        # procura a tabela
         tabela = soup.find('table', {'id':'table-ranking'})
+
+        # joga a tabela para uma string
         tabela_str = str(tabela)
+
+        # transforma a tabela em um dataframe
         df = pd.read_html(tabela_str)[0]
+
+        #sava a tabeal em um csv
         df.to_csv('./bi/dataframe_cotacao.csv', index=True, sep=';')
+        df.to_csv('./bi/dataframe_cotacao.tsv', sep='\t')
+        return df
 
 if __name__=="__main__":
     cl = cluster()
