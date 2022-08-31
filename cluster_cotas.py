@@ -12,8 +12,8 @@ class cluster():
         site1 = requests.get(url_1, headers=headers)
         soup_fundo1 = bs(site1.content, 'html.parser')
 
-        self.extrat(soup_fundo1)
-
+        data = self.extrat(soup_fundo1)
+        tratamento = self.tratamento(data)
 
     def extrat(self, soup):
         # procura a tabela
@@ -25,10 +25,17 @@ class cluster():
         # transforma a tabela em um dataframe
         df = pd.read_html(tabela_str)[0]
 
-        #sava a tabeal em um csv
-        df.to_csv('./bi/dataframe_cotacao.csv', index=True, sep=';')
-        df.to_csv('./bi/dataframe_cotacao.tsv', sep='\t')
         return df
+
+    def tratamento(self, dados):
+        #pega os dados para tratar
+        print(dados)
+        pd.set_option('float_format', '{:.f}'.format)
+        dados_tratados = dados
+        print(dados_tratados)
+        dados_tratados.to_csv('./bi/dataframe_cotacao.csv', encoding='utf8', index=True, sep=';')
+        dados_tratados.to_csv('./bi/dataframe_cotacao.tsv', encoding='utf8', sep='\t')
+
 
 if __name__=="__main__":
     cl = cluster()
