@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup as bs
 import pandas as pd
+import datetime
 
 
 class cluster():
@@ -13,28 +14,24 @@ class cluster():
         soup_fundo1 = bs(site1.content, 'html.parser')
 
         data = self.extrat(soup_fundo1)
-        tratamento = self.tratamento(data)
+        self.tratamento(data)
 
     def extrat(self, soup):
         # procura a tabela
         tabela = soup.find('table', {'id':'table-ranking'})
-
         # joga a tabela para uma string
         tabela_str = str(tabela)
-
         # transforma a tabela em um dataframe
         df = pd.read_html(tabela_str)[0]
-
+        
         return df
 
     def tratamento(self, dados):
         #pega os dados para tratar
-        print(dados)
-        pd.set_option('float_format', '{:.f}'.format)
         dados_tratados = dados
-        print(dados_tratados)
-        dados_tratados.to_csv('./bi/dataframe_cotacao.csv', encoding='utf8', index=True, sep=';')
-        dados_tratados.to_csv('./bi/dataframe_cotacao.tsv', encoding='utf8', sep='\t')
+        data = datetime.date.today()
+        dados_tratados.to_csv(f'./bi/{data}_dataframe_cotacao.csv', encoding='utf8', sep=';')
+        dados_tratados.to_csv(f'./bi/{data}_dataframe_cotacao.tsv', encoding='utf8', sep='\t')
 
 
 if __name__=="__main__":
