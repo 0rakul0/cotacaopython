@@ -76,38 +76,17 @@ class calc():
             valor_recebido = f'{nome[n]},o rendimento será de: {rendimento_acao}'
             valor_recebido_list.append(valor_recebido)
 
+
         saida_json = dict(zip(cotacoes_a_comprar,valor_recebido_list))
         return saida_json
 
-    def otimizacao(self, valor_para_gastar=None):
-        """
-        itens: lista de itens
-        restrições: valor do produto
-        valor_para_gastar: valor maximo
-        """
-        cart = datamine()
-        ct = cart.carteira_publica()
-        list_acoes = []
-        list_restricoes = []
-        list_risco = []
-        for item in ct:
-            acao = item['ACOES']
-            restricoes = item['VALOR_UNI']
-            risco = None
-
-            list_acoes.append(acao)
-            list_restricoes.append(restricoes)
-            list_risco.append(risco)
-
-        valor_max = valor_para_gastar / len(list_acoes)
-        print(list_acoes, list_restricoes, valor_max, list_risco)
 
 if __name__ == "__main__":
     cl = calc()
-    valor_disponivel = 3000
-    rendimento_corte = 0.5
+    valor_disponivel = 1000
+    rendimento_corte = 0.1
     divid_min = 1
-    minimo = 0
-    maximo = 50
+    minimo = 8
+    maximo = 12
     cl.run(valor_min=minimo, valor_max=maximo, rendimento_corte=rendimento_corte, valor_disponivel=valor_disponivel, divid_min=divid_min)
     # cl.otimizacao(1200)
