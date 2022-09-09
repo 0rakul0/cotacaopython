@@ -10,6 +10,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\bi\minha_carteira.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\bi\mongo_cotaceos.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
