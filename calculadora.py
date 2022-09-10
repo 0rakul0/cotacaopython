@@ -7,7 +7,7 @@ import pandas as pd
 class calc():
 
     def run(self, valor_disponivel=None,rendimento_corte=None, divid_min=None, valor_min=None, valor_max=None):
-        dataframe = pd.read_csv("./bi/dataframe_cotacao.tsv", sep='\t')
+        dataframe = pd.read_csv("./bi/2022-08-31_dataframe_cotacao.tsv", sep='\t')
         new_df = dataframe.copy()
         saida_json = self.igualdade(df_acoes=new_df, valor_disponivel=valor_disponivel, rendimento_corte=rendimento_corte,divid_min=divid_min, minimo=valor_min, maximo=valor_max)
         return saida_json

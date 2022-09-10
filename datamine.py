@@ -309,6 +309,6 @@ class datamine():
 if __name__ == "__main__":
     dt = datamine()
     # ht = historico()
-    dt.inicio('rzag11')
+    dt.inicio('ARRI11')
     # dt.carteira_publica()
 
