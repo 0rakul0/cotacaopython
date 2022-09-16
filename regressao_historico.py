@@ -18,7 +18,7 @@ class regres_hist():
         :return:
         """
         plt.subplot(211)
-        plt.plot(y, '-k')
+        plt.plot(x,y,'-k')
         ax = plt.subplot(212)
         ax.boxplot([y], showfliers=False)
         ax.set_xticklabels(['y'])
@@ -50,10 +50,17 @@ class regres_hist():
             return dados_data, dados_valor_cota, dados_valor_rendimento
 
         plt.scatter(dados_data, dados_valor_rendimento, label='data(rendimento)')
-        plt.ylabel='rendimento'
+        plt.xlabel = 'datas'
+        plt.ylabel = 'valor da cota'
         plt.legend()
         plt.show()
 
+        plt.scatter(x=dados_data, y=dados_valor_cota, label='data(valor_cota)')
+        plt.xlabel='datas'
+        plt.ylabel='valor da cota'
+        plt.legend()
+        plt.show()
+        
         beta, beta0, _,_, std_err = linregress(dados_valor_cota, dados_valor_rendimento)
         print(f'beta = {beta}')
         print(f'beta0 = {beta0}')
@@ -69,4 +76,4 @@ class regres_hist():
 
 if __name__ == "__main__":
     rgh = regres_hist()
-    rgh.run("bime11", dados=True)
+    rgh.run("mxrf11", dados=None)
