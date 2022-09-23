@@ -6,8 +6,8 @@ from historico import *
 
 
 class regres_hist():
-    def run(self, nome, dados=None):
-        x, y, z = self.extrat_hist(nome, dados)
+    def run(self, nome, dados=None, correlacao=None):
+        x, y, z = self.extrat_hist(nome, dados, correlacao)
         self.blpl(x,y,z)
 
     def blpl(self, x=None, y=None,z=None):
@@ -26,7 +26,7 @@ class regres_hist():
         print(ttest_ind(y,z))
 
 
-    def extrat_hist(self, nome_acao, dados=None):
+    def extrat_hist(self, nome_acao, dados=None, correlacao=None):
         hist = historico()
         valores = hist.historico_inicio(nome_acao)
         dados_valor_cota = []
@@ -46,6 +46,9 @@ class regres_hist():
         dados_valor_rendimento = np.array(dados_valor_rendimento)
         dados_data = np.array(dados_data)
 
+        if correlacao:
+            self.coe_corr(valores)
+
         if dados:
             return dados_data, dados_valor_cota, dados_valor_rendimento
 
@@ -60,7 +63,7 @@ class regres_hist():
         plt.ylabel='valor da cota'
         plt.legend()
         plt.show()
-        
+
         beta, beta0, _,_, std_err = linregress(dados_valor_cota, dados_valor_rendimento)
         print(f'beta = {beta}')
         print(f'beta0 = {beta0}')
@@ -73,7 +76,11 @@ class regres_hist():
         plt.legend()
         plt.show()
 
+        return dados_data, dados_valor_cota, dados_valor_rendimento
+
+    def coe_corr(self, valores):
+        print(valores)
 
 if __name__ == "__main__":
     rgh = regres_hist()
-    rgh.run("mxrf11", dados=None)
+    rgh.run("mxrf11", dados=None, correlacao=True)

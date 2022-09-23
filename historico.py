@@ -53,8 +53,8 @@ class historico():
                 rendimento_pg = float(rendimento_pg)
                 for dado in historico:
                     if data_pagamento == dado['day']:
-                        hist_item = {'NOME_COTA': self.nome_cotacao, 'DATA': data_pagamento,
-                                     'VALOR_COTA': dado['value'], 'RENDIMENTO': rendimento_pg}
+                        hist_item = {'NOME_COTA': self.nome_cotacao, 'day': data_pagamento,
+                                     'value': dado['value'], 'rendimento': rendimento_pg}
                         hist_list.append(hist_item)
 
         except:
@@ -87,7 +87,7 @@ class historico():
             rendimento_pg = list_linha_cotaceos[8][4:]
             rendimento_pg = rendimento_pg[:-1]
             rendimento_pg = float(rendimento_pg)
-            hist_site_2 = {'NOME_COTA':self.nome_cotacao,'DATA':data_pagamento,'VALOR_COTA':None, 'RENDIMENTO':rendimento_pg}
+            hist_site_2 = {'NOME_COTA':self.nome_cotacao,'day':data_pagamento,'value':None, 'rendimento':rendimento_pg}
             hist_list_site_2.append(hist_site_2)
         return hist_list_site_2
 if __name__=="__main__":
